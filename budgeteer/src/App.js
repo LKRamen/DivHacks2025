@@ -1,5 +1,6 @@
-import React from "react";
+import {React} from "react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import useNessieSpending from "./hooks/useNessieSpending";
 
 const spendingData = [
   { name: "Food", value: 400 },
@@ -11,10 +12,17 @@ const spendingData = [
 const COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#ef4444"]; // muted Notion-like palette
 
 function Dashboard() {
+  const { data, loading, error } = useNessieSpending(
+    '5b17fd25322fa06b67793a46'
+  );
+  console.log(data);
+  if (loading) return <div>Loading spending data...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Spending Dashboard</h1>
-      
+      <h1>${data?.totalSpending}</h1>
       <div className="grid grid-cols-2 gap-8">
         {/* Pie Chart */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
