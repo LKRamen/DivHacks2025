@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { ProfileProvider } from "./context/ProfileContext";
 import { Auth0Provider } from "@auth0/auth0-react";
 
 const domain = process.env.REACT_APP_AUTH0_DOMAIN;
@@ -18,7 +19,9 @@ root.render(
         redirect_uri: window.location.origin,
       }}
     >
-      <App />
+      <ProfileProvider>
+        <App />
+      </ProfileProvider>
     </Auth0Provider>
   </React.StrictMode>
 );
