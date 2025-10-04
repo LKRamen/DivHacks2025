@@ -1,17 +1,6 @@
 import React, { useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-const spendingData = [
-  { name: "Shopping", value: 63 },
-  { name: "Food & Dining", value: 46 },
-  { name: "Savings & Investment", value: 25 },
-  { name: "Entertainment", value: 20 },
-  { name: "Miscellaneous", value: 20 },
-  { name: "Bills & Subscriptions", value: 15 },
-  { name: "Health & Fitness", value: 10 },
-  { name: "Transportation", value: 2.9 },
-];
-
 const COLORS = [
   "#df84a8", // pink
   "#c08eda", // purple
@@ -23,15 +12,42 @@ const COLORS = [
   "#e97266", // red
 ];
 
-function DonutChart() {
-  const total = spendingData.reduce((acc, curr) => acc + curr.value, 0);
+function DonutChart({ data }) {
   const [activeIndex, setActiveIndex] = useState(null);
+
+  // Fallback data if no real data is provided
+  const defaultData = [
+    { name: "Shopping", value: 63 },
+    { name: "Food & Dining", value: 46 },
+    { name: "Savings & Investment", value: 25 },
+    { name: "Entertainment", value: 20 },
+    { name: "Miscellaneous", value: 20 },
+    { name: "Bills & Subscriptions", value: 15 },
+    { name: "Health & Fitness", value: 10 },
+    { name: "Transportation", value: 2.9 },
+  ];
+
+  // Transform real data into chart format
+  let spendingData = defaultData;
+  let total = defaultData.reduce((acc, curr) => acc + curr.value, 0);
+
+  if (data && data.categoryTotals) {
+    spendingData = Object.entries(data.categoryTotals)
+      .filter(([_, value]) => value > 0) // Only show categories with spending
+      .map(([name, value]) => ({
+        name,
+        value: parseFloat(value.toFixed(2))
+      }))
+      .sort((a, b) => b.value - a.value); // Sort by value descending
+
+    total = data.totalSpending;
+  }
 
   return (
     <div className="bg-white rounded-2xl border p-6">
       <h2 className="text-lg font-semibold mb-4 text-center">Total Spending</h2>
 
-      {/* 👇 This wrapper is key: relative + fixed height */}
+      {/* This wrapper is key: relative + fixed height */}
       <div className="relative w-full" style={{ height: "350px" }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -71,7 +87,7 @@ function DonutChart() {
           </PieChart>
         </ResponsiveContainer>
 
-        {/* 👇 Now this absolute box is centered inside the donut wrapper */}
+        {/* Centered text inside the donut */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
           {activeIndex !== null ? (
             <>
@@ -84,7 +100,7 @@ function DonutChart() {
             </>
           ) : (
             <>
-              <span className="text-2xl font-bold">${total.toFixed(0)}</span>
+              <span className="text-2xl font-bold">${total.toFixed(2)}</span>
               <span className="text-gray-500 text-sm">Total Amount</span>
             </>
           )}
