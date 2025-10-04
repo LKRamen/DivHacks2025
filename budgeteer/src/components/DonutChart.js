@@ -28,7 +28,8 @@ function DonutChart() {
   const [activeIndex, setActiveIndex] = useState(null);
 
   return (
-    <div className="bg-white rounded-2xl border p-6">
+    <div className="bg-[#2a2a30] rounded-2xl border border-gray-700 p-6">
+
       <h2 className="text-lg font-semibold mb-4 text-center">Total Spending</h2>
 
       {/* 👇 This wrapper is key: relative + fixed height */}

@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 100px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'><path fill='%23ffffff' fill-opacity='0.3' d='M0,96L48,85.3C96,75,192,53,288,80C384,107,480,181,576,202.7C672,224,768,192,864,154.7C960,117,1056,75,1152,80C1248,85,1344,139,1392,165.3L1440,192V0H0Z'></path></svg>");
+  background-size: 50% 100px;
+  animation: wave 10s linear infinite;
+}
+
+@keyframes wave {
+  from { background-position-x: 0; }
+  to { background-position-x: 1000px; }
+}
