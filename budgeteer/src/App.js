@@ -2,10 +2,15 @@ import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
+
 import DonutChart from "./components/DonutChart";
 import HorizontalBarChart from "./components/HorizontalBarChart";
 import SummaryBlock from "./components/SummaryBlock";
 import AuthButtons from "./components/AuthButtons";
+import TransactionStatement from "./components/TransactionStatement";
+import transactionsData from "./data/transactions.json"; // assuming you saved your JSON
+import BudgetingTips from "./components/BudgetingTips";
+
 
 function App() {
   const { isAuthenticated, isLoading, loginWithRedirect, user } = useAuth0();
@@ -61,7 +66,7 @@ function App() {
 
 
       <div className="relative z-10 text-center text-white">
-        <h1 className="text-4xl font-bold mb-6">Welcome to Budgeteer 💸</h1>
+        <h1 className="text-4xl font-bold mb-6 drop-shadow-xl">Welcome to Budgeteer 💸</h1>
         <button
           onClick={() => loginWithRedirect()}
           style={{ backgroundColor: "#107c38" }}
@@ -88,8 +93,19 @@ function App() {
         <DonutChart />
         <HorizontalBarChart />
       </div>
+      
+      <div className="grid grid-cols-2 gap-8 mb-8 items-stretch">
+        <div className="flex flex-col gap-8 h-full">
+          <SummaryBlock summary={aiSummary} />
+          <BudgetingTips tips={["Cut dining expenses by 10%", "Increase savings to 25%"]} />
+        </div>
 
-      <SummaryBlock summary={aiSummary} />
+        <TransactionStatement transactions={transactionsData.results} />
+      </div>
+
+
+
+      
     </div>
   );
 }

@@ -79,14 +79,14 @@ function DonutChart() {
               <span className="text-xl font-bold">
                 {spendingData[activeIndex].name}
               </span>
-              <span className="text-gray-600">
+              <span className="text-gray-400">
                 ${spendingData[activeIndex].value}
               </span>
             </>
           ) : (
             <>
               <span className="text-2xl font-bold">${total.toFixed(0)}</span>
-              <span className="text-gray-500 text-sm">Total Amount</span>
+              <span className="text-gray-400 text-sm">Total Amount</span>
             </>
           )}
         </div>
