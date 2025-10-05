@@ -1,4 +1,6 @@
-import React from "react";
+ import React from "react";
+import Chatbot from "./components/Chatbot";
+import { useSpendingContext } from "./hooks/useSpendingContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import DonutChart from "./components/DonutChart";
 import HorizontalBarChart from "./components/HorizontalBarChart";
@@ -6,12 +8,34 @@ import SummaryBlock from "./components/SummaryBlock";
 import AuthButtons from "./components/AuthButtons";
 import useNessieSpending from "./hooks/useNessieSpending"; // Import the hook
 
+// NEW: chatbot + context imports
+// (If you haven’t created the file yet, see note below to create it.)
+
 function App() {
   const { isAuthenticated, isLoading, loginWithRedirect, user } = useAuth0();
   
   // Fetch spending data using the hook
   const { data: spendingData, loading: spendingLoading, error: spendingError } = useNessieSpending(user);
   
+  const categories = [
+    { name: "Shopping", value: 63 },
+    { name: "Food & Dining", value: 46 },
+    { name: "Savings & Investment", value: 25 },
+    { name: "Entertainment", value: 20 },
+    { name: "Miscellaneous", value: 20 },
+    { name: "Bills & Subscriptions", value: 15 },
+    { name: "Health & Fitness", value: 10 },
+    { name: "Transportation", value: 2.9 },
+  ];
+
+  // Build chatbot context (you can wire real values later)
+  const chatbotContext = useSpendingContext({
+    categories,
+    balance: spendingData?.totalSpending,  // replace with live balance (e.g., from useNessieSpending)
+    goal: 900,      // example monthly goal
+    month: "October",
+  });
+
   const aiSummary = "";
 
   if (isLoading) {
@@ -68,6 +92,9 @@ function App() {
       )}
 
       <SummaryBlock summary={aiSummary} />
+
+      {/* Floating chatbot */}
+      <Chatbot context={chatbotContext} userName={user?.given_name || user?.name || "there"} />
     </div>
   );
 }

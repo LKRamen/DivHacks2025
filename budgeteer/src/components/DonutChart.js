@@ -44,7 +44,8 @@ function DonutChart({ data }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border p-6">
+    <div className="bg-[#2a2a30] rounded-2xl border border-gray-700 p-6">
+
       <h2 className="text-lg font-semibold mb-4 text-center">Total Spending</h2>
 
       {/* This wrapper is key: relative + fixed height */}
@@ -94,14 +95,14 @@ function DonutChart({ data }) {
               <span className="text-xl font-bold">
                 {spendingData[activeIndex].name}
               </span>
-              <span className="text-gray-600">
+              <span className="text-gray-400">
                 ${spendingData[activeIndex].value}
               </span>
             </>
           ) : (
             <>
               <span className="text-2xl font-bold">${total.toFixed(2)}</span>
-              <span className="text-gray-500 text-sm">Total Amount</span>
+              <span className="text-gray-400 text-sm">Total Amount</span>
             </>
           )}
         </div>

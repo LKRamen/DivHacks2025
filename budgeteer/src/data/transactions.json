@@ -1,0 +1,134 @@
+{
+  "results": [
+    {
+      "_id": "57cf75cea73e494d8675ec4a",
+      "address": {
+        "street_number": "221B",
+        "street_name": "Baker St",
+        "city": "London",
+        "state": "UK",
+        "zip": "NW16XE"
+      },
+      "category": ["furniture_store", "home_goods_store"],
+      "geocode": { "lat": 51.523, "lng": -0.158 },
+      "name": "Pastimes Antiques"
+    },
+    {
+      "_id": "57cf75cea73e494d8675ec49",
+      "address": {
+        "city": "Cupertino",
+        "state": "CA",
+        "street_name": "Apple Campus",
+        "street_number": "1",
+        "zip": "95014"
+      },
+      "category": ["tech", "phones", "laptop"],
+      "geocode": { "lat": 37.332, "lng": -122.031 },
+      "name": "Apple Store"
+    },
+    {
+      "_id": "57cf75cea73e494d8675ec4b",
+      "address": {
+        "city": "Chapel Hill",
+        "state": "NC",
+        "street_name": "South Rd",
+        "street_number": "5901",
+        "zip": "27514"
+      },
+      "category": ["food", "market"],
+      "geocode": { "lat": 47.987, "lng": -76.036 },
+      "name": "Ithaca Farmers' Market"
+    },
+    {
+      "_id": "57cf75cea73e494d8675ec4c",
+      "address": {
+        "city": "New York",
+        "state": "NY",
+        "street_name": "5th Ave",
+        "street_number": "767",
+        "zip": "10153"
+      },
+      "category": ["clothing", "retail"],
+      "geocode": { "lat": 40.763, "lng": -73.972 },
+      "name": "Bloomingdale's"
+    },
+    {
+      "_id": "57cf75cea73e494d8675ec4d",
+      "address": {
+        "city": "Seattle",
+        "state": "WA",
+        "street_name": "Pike St",
+        "street_number": "1912",
+        "zip": "98101"
+      },
+      "category": ["food", "coffee_shop"],
+      "geocode": { "lat": 47.610, "lng": -122.342 },
+      "name": "Starbucks"
+    },
+    {
+      "_id": "57cf75cea73e494d8675ec4e",
+      "address": {
+        "city": "San Francisco",
+        "state": "CA",
+        "street_name": "Market St",
+        "street_number": "799",
+        "zip": "94103"
+      },
+      "category": ["transportation", "ride_share"],
+      "geocode": { "lat": 37.774, "lng": -122.419 },
+      "name": "Uber Ride"
+    },
+    {
+      "_id": "57cf75cea73e494d8675ec4f",
+      "address": {
+        "city": "Los Angeles",
+        "state": "CA",
+        "street_name": "Hollywood Blvd",
+        "street_number": "6925",
+        "zip": "90028"
+      },
+      "category": ["entertainment", "cinema"],
+      "geocode": { "lat": 34.101, "lng": -118.338 },
+      "name": "AMC Theatres"
+    },
+    {
+      "_id": "57cf75cea73e494d8675ec50",
+      "address": {
+        "city": "Chicago",
+        "state": "IL",
+        "street_name": "Michigan Ave",
+        "street_number": "835",
+        "zip": "60611"
+      },
+      "category": ["grocery", "supermarket"],
+      "geocode": { "lat": 41.895, "lng": -87.623 },
+      "name": "Whole Foods"
+    },
+    {
+      "_id": "57cf75cea73e494d8675ec51",
+      "address": {
+        "city": "Boston",
+        "state": "MA",
+        "street_name": "Boylston St",
+        "street_number": "800",
+        "zip": "02199"
+      },
+      "category": ["fitness", "gym"],
+      "geocode": { "lat": 42.347, "lng": -71.082 },
+      "name": "Equinox Gym"
+    },
+    {
+      "_id": "57cf75cea73e494d8675ec52",
+      "address": {
+        "city": "Austin",
+        "state": "TX",
+        "street_name": "Congress Ave",
+        "street_number": "1100",
+        "zip": "78701"
+      },
+      "category": ["bills", "subscription"],
+      "geocode": { "lat": 30.267, "lng": -97.743 },
+      "name": "Spotify Premium"
+    }
+  ]
+}

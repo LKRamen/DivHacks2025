@@ -49,7 +49,8 @@ function HorizontalBarChart({ data }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border p-6">
+    <div className="bg-[#2a2a30] rounded-2xl border border-gray-700 p-6">
+
       <h2 className="text-lg font-semibold mb-4 text-center">Category Breakdown</h2>
       <ResponsiveContainer width="100%" height={350}>
         <BarChart
@@ -57,12 +58,16 @@ function HorizontalBarChart({ data }) {
           layout="vertical"
           margin={{ top: 0, right: 30, left: 50, bottom: 0 }}
         >
-          <XAxis type="number" />
+          <XAxis type="number" 
+            tick={{ fill: "#d1d5db", fontSize: 12 }}   // 👈 gray-300
+            axisLine={{ stroke: "#4b5563" }}           // 👈 gray-600 for the line
+            tickLine={{ stroke: "#4b5563" }}
+          />
           <YAxis
             type="category"
             dataKey="name"
             width={150}
-            tick={{ fontSize: 12 }}
+            tick={{ fill: "#d1d5db", fontSize: 12 }} 
           />
           <Tooltip
             formatter={(value, name) => [`$${value}`, name]}
