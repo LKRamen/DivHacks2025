@@ -112,7 +112,7 @@ export default function App() {
   // Backend uploader for Confirm (uses CRA proxy /api → :4000)
   const uploadProfile = async (p) => {
     try {
-      const res = await fetch("/api/profile/upsert", {
+      const res = await fetch("http://localhost:3001/api/profile/upsert", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(p),

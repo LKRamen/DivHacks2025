@@ -1,11 +1,6 @@
+// src/components/Chatbot.js
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-/**
- * Chatbot widget
- * - Props:
- *   - context: { categories: [{name, value}], month?: string, balance?: number, goal?: number }
- *   - userName?: string
- */
 export default function Chatbot({ context = {}, userName = "there" }) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -18,7 +13,6 @@ export default function Chatbot({ context = {}, userName = "there" }) {
   ]);
   const listRef = useRef(null);
 
-  // Auto scroll to newest
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -26,7 +20,6 @@ export default function Chatbot({ context = {}, userName = "there" }) {
   }, [messages, open]);
 
   const systemPrompt = useMemo(() => {
-    // Build a compact snapshot of current data for the bot
     const cats = (context.categories || [])
       .map((c) => `${c.name}:${c.value}`)
       .join(", ");
@@ -54,30 +47,27 @@ export default function Chatbot({ context = {}, userName = "there" }) {
     setBusy(true);
 
     try {
-        const res = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                system: systemPrompt,
-                context,
-                messages: newMsgs.slice(-10),
-            }),
-        });
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: systemPrompt,
+          context,
+          messages: newMsgs.slice(-10),
+        }),
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (!res.ok) {
-            const msg = data?.error || `Chat error: ${res.status}`;
-            throw new Error(msg);
-        }
+      if (!res.ok) throw new Error(data?.error || `Chat error: ${res.status}`);
 
-        setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
-    }   catch (err) {
-        setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: `Error from server: ${err.message}` },
-        ]);
-        } finally {
+      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: `Error from server: ${err.message}` },
+      ]);
+    } finally {
       setBusy(false);
     }
   };
@@ -91,30 +81,35 @@ export default function Chatbot({ context = {}, userName = "there" }) {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating toggle button */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-6 right-6 z-40 rounded-full shadow-lg bg-blue-600 text-white px-5 py-3 text-sm font-semibold hover:bg-blue-700"
+        className="fixed bottom-6 right-6 z-40 rounded-full shadow-lg bg-emerald-600 text-white px-5 py-3 text-sm font-semibold hover:bg-emerald-700"
       >
         {open ? "Close Chat" : "Chat"}
       </button>
 
-      {/* Panel */}
+      {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-40 w-[360px] h-[520px] bg-white border rounded-2xl shadow-xl flex flex-col">
-          <div className="px-4 py-3 border-b flex items-center justify-between">
-            <div className="font-semibold">Budgeteer Assistant</div>
-            <div className="text-xs text-gray-500">{busy ? "thinking…" : "online"}</div>
+        <div className="fixed bottom-24 right-6 z-40 w-[360px] h-[520px] bg-[#1f1f24] border border-gray-700 rounded-2xl shadow-xl flex flex-col text-gray-100">
+          {/* Header */}
+          <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
+            <div className="font-semibold text-emerald-400">Budgeteer Assistant</div>
+            <div className="text-xs text-gray-400">{busy ? "thinking…" : "online"}</div>
           </div>
 
-          <div ref={listRef} className="flex-1 overflow-y-auto p-3 space-y-2">
+          {/* Messages */}
+          <div
+            ref={listRef}
+            className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent"
+          >
             {messages.map((m, i) => (
               <div
                 key={i}
                 className={
                   m.role === "user"
-                    ? "ml-10 bg-blue-100 text-gray-900 rounded-xl px-3 py-2 max-w-[80%] self-end"
-                    : "mr-10 bg-gray-100 text-gray-900 rounded-xl px-3 py-2 max-w-[85%]"
+                    ? "ml-10 bg-emerald-600 text-white rounded-xl px-3 py-2 max-w-[80%] self-end"
+                    : "mr-10 bg-gray-800 text-gray-100 rounded-xl px-3 py-2 max-w-[85%]"
                 }
               >
                 {m.content}
@@ -122,20 +117,21 @@ export default function Chatbot({ context = {}, userName = "there" }) {
             ))}
           </div>
 
-          <div className="border-t p-3">
+          {/* Input */}
+          <div className="border-t border-gray-700 p-3">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
               rows={2}
               placeholder="Ask about your spending, goals, or savings ideas…"
-              className="w-full resize-none border rounded-lg p-2 outline-none focus:ring focus:ring-blue-200 text-gray-900"
+              className="w-full resize-none border border-gray-600 bg-[#2a2a30] rounded-lg p-2 outline-none focus:ring focus:ring-emerald-500 text-gray-100 placeholder-gray-500"
             />
             <div className="mt-2 flex justify-end">
               <button
                 onClick={send}
                 disabled={busy || !input.trim()}
-                className="bg-blue-600 disabled:opacity-60 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                className="bg-emerald-600 disabled:opacity-60 text-white px-4 py-2 rounded-lg hover:bg-emerald-700"
               >
                 Send
               </button>
