@@ -113,7 +113,7 @@ export default function Chatbot({ context = {}, userName = "there" }) {
                 key={i}
                 className={
                   m.role === "user"
-                    ? "ml-10 bg-blue-600 text-white rounded-xl px-3 py-2 max-w-[80%] self-end"
+                    ? "ml-10 bg-blue-100 text-gray-900 rounded-xl px-3 py-2 max-w-[80%] self-end"
                     : "mr-10 bg-gray-100 text-gray-900 rounded-xl px-3 py-2 max-w-[85%]"
                 }
               >
@@ -129,7 +129,7 @@ export default function Chatbot({ context = {}, userName = "there" }) {
               onKeyDown={onKeyDown}
               rows={2}
               placeholder="Ask about your spending, goals, or savings ideas…"
-              className="w-full resize-none border rounded-lg p-2 outline-none focus:ring focus:ring-blue-200"
+              className="w-full resize-none border rounded-lg p-2 outline-none focus:ring focus:ring-blue-200 text-gray-900"
             />
             <div className="mt-2 flex justify-end">
               <button
