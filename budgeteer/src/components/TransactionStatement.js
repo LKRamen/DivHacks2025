@@ -1,35 +1,53 @@
 import React from "react";
 
-// Example props: pass in your transaction JSON array as `transactions`
-function TransactionStatement({ transactions }) {
+function TransactionStatement({ transactions, merchantMap = {} }) {
+  console.log(transactions);
+  if (!transactions || transactions.length === 0) {
+    return (
+      <div className="bg-[#2a2a30] rounded-2xl border border-gray-700 p-6">
+        <h2 className="text-lg font-semibold mb-4">Recent Transactions</h2>
+        <p className="text-gray-400">No transactions available.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-[#2a2a30] rounded-2xl border border-gray-700 p-6">
       <h2 className="text-lg font-semibold mb-4">Recent Transactions</h2>
 
-      {transactions && transactions.length > 0 ? (
-        <ul className="space-y-4">
-          {transactions.map((txn) => (
+      <ul className="space-y-4 max-h-96 overflow-y-auto">
+        {transactions.map((txn) => {
+          const merchant = merchantMap[txn?.merchant_id] || {};
+          const category = merchant.category || "Uncategorized";
+          
+          return (
             <li
               key={txn._id}
               className="flex justify-between items-center border-b border-gray-700 pb-2"
             >
-              <div>
-                <p className="font-medium text-gray-200">{txn.name}</p>
+              <div className="flex-1">
+                <p className="font-medium text-gray-200">
+                  {merchant.name || "Unknown Merchant"}
+                </p>
                 <p className="text-sm text-gray-400">
-                  {txn.address?.street_number || ""}{" "}
-                  {txn.address?.street_name || ""}{" "}
-                  {txn.address?.city || ""} {txn.address?.state || ""}
+                  {merchant.address?.street_number} {merchant.address?.street_name}
+                  {merchant.address?.city && `${merchant.address.city}`}
+                  {merchant.address?.state && ` ${merchant.address.state}`}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {new Date(txn.purchase_date).toLocaleDateString()}
                 </p>
               </div>
-              <div className="text-sm text-gray-400">
-                {txn.category?.[0] || "Uncategorized"}
+              <div className="text-right ml-4">
+                <p className="font-semibold text-gray-200">
+                  ${txn.amount.toFixed(2)}
+                </p>
+                <p className="text-xs text-gray-400">{category}</p>
               </div>
             </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-gray-400">No transactions available.</p>
-      )}
+          );
+        })}
+      </ul>
     </div>
   );
 }

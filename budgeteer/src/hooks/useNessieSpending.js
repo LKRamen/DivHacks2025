@@ -244,6 +244,7 @@ const useNessieSpending = (user) => {
           categoryTotals[umbrellaCategory] += amount;
 
           console.log(`Purchase $${amount} -> ${firstCategory} -> ${umbrellaCategory}`);
+          merchantMap[purchase.merchant_id]['category'] = umbrellaCategory;
         } else {
           // No category found, add to Miscellaneous
           categoryTotals["Miscellaneous"] += amount;
@@ -259,7 +260,8 @@ const useNessieSpending = (user) => {
         categoryTotals: categoryTotals,
         totalSpending: totalSpending,
         purchaseCount: purchases.length,
-        rawPurchases: purchases // Include raw purchases for debugging
+        rawPurchases: purchases,
+        merchantMap: merchantMap
       });
 
     } catch (err) {

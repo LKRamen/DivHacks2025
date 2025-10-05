@@ -16,12 +16,24 @@ import SummaryBlock from "./components/SummaryBlock";
 import AuthButtons from "./components/AuthButtons";
 import useNessieSpending from "./hooks/useNessieSpending"; // Import the hook
 import TransactionStatement from "./components/TransactionStatement";
-import transactionsData from "./data/transactions.json";
 import BudgetingTips from "./components/BudgetingTips";
 
 // ---------------- Dashboard ----------------
-function DashboardContent({ user, onEdit, chatbotContext, spendingData, spendingLoading, spendingError  }) {
+function DashboardContent({ user, onEdit, spendingData, spendingLoading, spendingError, profile }) {
   const aiSummary = "";
+  
+  // Build chatbot context here with profile access
+  const categories = spendingData?.categoryTotals 
+    ? Object.entries(spendingData.categoryTotals).map(([name, value]) => ({ name, value }))
+    : [];
+    
+  const chatbotContext = useSpendingContext({
+    categories,
+    balance: spendingData?.totalSpending,
+    goal: 900,
+    month: "October",
+  });
+
   return (
     <div className="p-10 bg-[#1f1f24] min-h-screen text-white">
       <header className="mb-6 flex items-center justify-between">
@@ -64,14 +76,20 @@ function DashboardContent({ user, onEdit, chatbotContext, spendingData, spending
 
       <div className="grid grid-cols-2 gap-8 mb-8 items-stretch">
         <div className="flex flex-col gap-8 h-full">
-          <SummaryBlock summary={aiSummary} />
-          <BudgetingTips tips={["Cut dining expenses by 10%", "Increase savings to 25%"]} />
+          <SummaryBlock 
+            summary={aiSummary} 
+            profile={profile} 
+            spendingData={spendingData} 
+          />
+          <BudgetingTips 
+            profile={profile} 
+            spendingData={spendingData} 
+          />
         </div>
-        <TransactionStatement transactions={transactionsData.results} />
+        <TransactionStatement transactions={spendingData?.rawPurchases} merchantMap={spendingData?.merchantMap}/>
       </div>
 
-      {/* Floating chatbot */}
-      <Chatbot context={chatbotContext} userName={user?.given_name || user?.name || "there"} />
+      <Chatbot context={chatbotContext} profile={profile} userName={user?.given_name || user?.name || "there"} />
     </div>
   );
 }
@@ -86,10 +104,8 @@ export default function App() {
   const { profile, hasSurvey, setProfile } = useProfile();
   const [editing, setEditing] = useState(false);
 
-  const [profileFetched, setProfileFetched] = useState(false);
-
   useEffect(() => {
-    if (!user?.sub) return; // Exit if no user
+    if (!user?.sub) return;
     
     console.log("Attempting to fetch profile for:", user.sub);
     
@@ -108,8 +124,8 @@ export default function App() {
         }
       })
       .catch(err => console.error("Fetch error:", err));
-  }, [user?.sub]); // Only depend on user ID
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.sub]); // setProfile is stable from context, safe to omit
   // Particles init
   const particlesInit = useCallback(async (engine) => {
     await loadFull(engine);
@@ -231,4 +247,5 @@ return <DashboardContent
   spendingData={spendingData}
   spendingLoading={spendingLoading}
   spendingError={spendingError}
+  profile={profile}
 />;}

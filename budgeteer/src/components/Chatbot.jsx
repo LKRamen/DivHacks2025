@@ -1,7 +1,7 @@
 // src/components/Chatbot.js
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-export default function Chatbot({ context = {}, userName = "there" }) {
+export default function Chatbot({ context = {}, userName = "there", profile = {} }) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -27,15 +27,24 @@ export default function Chatbot({ context = {}, userName = "there" }) {
     const balance = typeof context.balance === "number" ? context.balance : "unknown";
     const goal = typeof context.goal === "number" ? context.goal : null;
 
+    // Extract profile preferences
+    const userGoals = profile?.survey?.goals || [];
+    const focusCategories = profile?.survey?.focus_categories || [];
+    const nudges = profile?.survey?.nudges || [];
+    const timeHorizon = profile?.survey?.time_horizon || [];
+
     return [
       "You are a helpful, concise budgeting assistant.",
       "Speak in short, direct sentences. Give concrete suggestions that are practical for students.",
       `Data snapshot: categories=[${cats}] month=${month} balance=${balance}${goal !== null ? ` goal=${goal}` : ""}`,
-      "If user asks for ideas: give 3 quick, specific actions with estimated monthly impact.",
-      "If the user asks for comparisons, compute category percentages and show top 3 categories.",
-      "If there’s not enough data, ask one clarifying question and still give one actionable tip.",
-    ].join("\n");
-  }, [context]);
+      userGoals.length > 0 ? `User's goals: ${userGoals.join(", ")}` : "",
+      focusCategories.length > 0 ? `Focus on: ${focusCategories.join(", ")}` : "",
+      nudges.length > 0 ? `User wants: ${nudges.join(", ")}` : "",
+      timeHorizon.length > 0 ? `Planning for: ${timeHorizon.join(", ")}` : "",
+      "Tailor advice to their stated goals and focus categories.",
+      "Give 3 quick, specific actions with estimated monthly impact when asked for ideas.",
+    ].filter(Boolean).join("\n");
+  }, [context, profile]);
 
   const send = async () => {
     const content = input.trim();
