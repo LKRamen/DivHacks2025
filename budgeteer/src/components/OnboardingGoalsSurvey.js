@@ -7,6 +7,7 @@ export default function OnboardingGoalsSurvey({
   userId,
   userEmail,
   profileFileName = "budgeteer_profile.json",
+  initialAnswers = {}, // Add this prop
 }) {
   const QUESTIONS = useMemo(
     () => [
@@ -63,7 +64,7 @@ export default function OnboardingGoalsSurvey({
     []
   );
 
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState(initialAnswers); // Use initialAnswers instead of {}
   const [notice, setNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef(null);

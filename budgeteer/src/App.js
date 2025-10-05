@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useProfile } from "./context/ProfileContext";
 import OnboardingGoalsSurvey from "./components/OnboardingGoalsSurvey";
@@ -85,6 +85,30 @@ export default function App() {
   
   const { profile, hasSurvey, setProfile } = useProfile();
   const [editing, setEditing] = useState(false);
+
+  const [profileFetched, setProfileFetched] = useState(false);
+
+  useEffect(() => {
+    if (!user?.sub) return; // Exit if no user
+    
+    console.log("Attempting to fetch profile for:", user.sub);
+    
+    fetch(`http://localhost:3001/api/profile/${encodeURIComponent(user.sub)}`)
+      .then(res => {
+        console.log("Response status:", res.status);
+        return res.ok ? res.json() : null;
+      })
+      .then(data => {
+        console.log("Profile data received:", data);
+        if (data) {
+          console.log("Setting profile from backend");
+          setProfile(data);
+        } else {
+          console.log("No profile found on backend");
+        }
+      })
+      .catch(err => console.error("Fetch error:", err));
+  }, [user?.sub]); // Only depend on user ID
 
   // Particles init
   const particlesInit = useCallback(async (engine) => {
@@ -184,21 +208,16 @@ export default function App() {
       <OnboardingGoalsSurvey
         userId={user?.sub}
         userEmail={user?.email}
+        initialAnswers={profile?.survey} // Add this line
         onSkip={(_, builtProfile) => {
-          // Skip: mark completed locally, NO upload
           setProfile(builtProfile);
           setEditing(false);
         }}
         onSubmit={async (_, builtProfile) => {
-          // Confirm: upload then persist locally
-          try {
-            await uploadProfile(builtProfile);
-            setProfile(builtProfile);
-            setEditing(false);
-          } catch (err) {
-            console.error(err);
-            alert("Failed to save preferences: " + err.message);
-          }
+          const profileWithUser = { ...builtProfile, userId: user?.sub };
+          await uploadProfile(profileWithUser);
+          setProfile(profileWithUser);
+          setEditing(false);
         }}
       />
     );

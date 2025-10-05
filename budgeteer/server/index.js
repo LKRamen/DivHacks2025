@@ -7,6 +7,9 @@ console.log("Key prefix/len:", (OPENAI_API_KEY || "").slice(0, 12), (OPENAI_API_
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 const app = express();
 
 app.use(cors());
@@ -20,6 +23,56 @@ if (!OPENAI_API_KEY) {
     "ERROR: OPENAI_API_KEY is missing. Create server/.env with OPENAI_API_KEY=sk-... and restart."
   );
 }
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PROFILE_PATH = path.join(__dirname, "profiles.json");
+
+app.get("/api/profile/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const data = await fs.readFile(PROFILE_PATH, "utf8");
+    const allProfiles = JSON.parse(data);
+    console.log(data);
+    
+    if (allProfiles[userId]) {
+      res.json(allProfiles[userId]);
+    } else {
+      res.status(404).json({ error: "Profile not found" });
+    }
+  } catch (err) {
+    console.error("Error loading profile:", err);
+    res.status(404).json({ error: "No profiles found" });
+  }
+});
+
+app.post("/api/profile/upsert", async (req, res) => {
+  try {
+    const profileData = req.body;
+    if (!profileData.userId) {
+      return res.status(400).json({ error: "Missing userId" });
+    }
+
+    console.log("Received profile:", profileData);
+
+    // Read existing profiles
+    let allProfiles = {};
+    try {
+      const data = await fs.readFile(PROFILE_PATH, "utf8");
+      allProfiles = JSON.parse(data);
+    } catch (e) {
+      // No existing file yet
+    }
+
+    // Upsert by userId
+    allProfiles[profileData.userId] = profileData;
+
+    await fs.writeFile(PROFILE_PATH, JSON.stringify(allProfiles, null, 2));
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error saving profile:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.post("/api/chat", async (req, res) => {
   const { system, messages } = req.body || {};
