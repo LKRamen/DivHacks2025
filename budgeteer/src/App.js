@@ -7,6 +7,9 @@ import OnboardingGoalsSurvey from "./components/OnboardingGoalsSurvey";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
 
+import Chatbot from "./components/Chatbot";
+import { useSpendingContext } from "./hooks/useSpendingContext";
+
 import DonutChart from "./components/DonutChart";
 import HorizontalBarChart from "./components/HorizontalBarChart";
 import SummaryBlock from "./components/SummaryBlock";
@@ -15,8 +18,8 @@ import TransactionStatement from "./components/TransactionStatement";
 import transactionsData from "./data/transactions.json";
 import BudgetingTips from "./components/BudgetingTips";
 
-// ---------- Dashboard UI ----------
-function DashboardContent({ user, onEdit }) {
+// ---------------- Dashboard ----------------
+function DashboardContent({ user, onEdit, chatbotContext }) {
   const aiSummary = "";
 
   return (
@@ -48,22 +51,43 @@ function DashboardContent({ user, onEdit }) {
         </div>
         <TransactionStatement transactions={transactionsData.results} />
       </div>
+
+      {/* Floating chatbot */}
+      <Chatbot context={chatbotContext} userName={user?.given_name || user?.name || "there"} />
     </div>
   );
 }
 
-// ---------- App ----------
+// ---------------- App ----------------
 export default function App() {
   const { isAuthenticated, isLoading, loginWithRedirect, user } = useAuth0();
-  const { profile, hasSurvey, setProfile } = useProfile();  // <-- need profile for .meta.completed
+  const { profile, hasSurvey, setProfile } = useProfile();
   const [editing, setEditing] = useState(false);
 
-  // particles init
+  // Particles init
   const particlesInit = useCallback(async (engine) => {
     await loadFull(engine);
   }, []);
 
-  // --- Backend uploader for Confirm ---
+  // Build chatbot context (replace with live values when you have them)
+  const categories = [
+    { name: "Shopping", value: 63 },
+    { name: "Food & Dining", value: 46 },
+    { name: "Savings & Investment", value: 25 },
+    { name: "Entertainment", value: 20 },
+    { name: "Miscellaneous", value: 20 },
+    { name: "Bills & Subscriptions", value: 15 },
+    { name: "Health & Fitness", value: 10 },
+    { name: "Transportation", value: 2.9 },
+  ];
+  const chatbotContext = useSpendingContext({
+    categories,
+    balance: 1200,
+    goal: 900,
+    month: "October",
+  });
+
+  // Backend uploader for Confirm (uses CRA proxy /api → :4000)
   const uploadProfile = async (p) => {
     try {
       const res = await fetch("/api/profile/upsert", {
@@ -71,19 +95,15 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(p),
       });
-
       if (res.ok) return { uploaded: true };
-
       const errorText = await res.text();
       const message = errorText || `HTTP ${res.status}`;
       const looksLikeProxyFailure =
         res.status >= 500 && /proxy error|ECONNREFUSED/i.test(message);
-
       if (looksLikeProxyFailure) {
         console.warn("Skipping remote profile save; backend unavailable:", message);
         return { uploaded: false, reason: message };
       }
-
       throw new Error(`HTTP ${res.status}: ${message}`);
     } catch (err) {
       if (err && typeof err.message === "string" && /ECONNREFUSED|Failed to fetch/i.test(err.message)) {
@@ -96,7 +116,7 @@ export default function App() {
 
   if (isLoading) return <div className="p-10 text-xl">Loading...</div>;
 
-  // Not logged in → login screen with particles bg
+  // 1) Not logged in → login page
   if (!isAuthenticated) {
     return (
       <div className="relative h-screen w-screen flex items-center justify-center">
@@ -121,7 +141,6 @@ export default function App() {
             detectRetina: true,
           }}
         />
-
         <div className="relative z-10 text-center text-white">
           <h1 className="text-4xl font-bold mb-6 drop-shadow-xl">Welcome to Budgeteer 💸</h1>
           <button
@@ -136,33 +155,33 @@ export default function App() {
     );
   }
 
-  // --- SURVEY GATE ---
-  // Show survey the first time (no selections) OR whenever editing is toggled.
-  // Skip should work because profile.meta.completed will be true even with empty answers.
-  if (editing || (!hasSurvey && !profile?.meta?.completed)) {
-  return (
-    <OnboardingGoalsSurvey
-      userId={user?.sub}
-      userEmail={user?.email}
-      onSkip={(_, builtProfile) => {
-        // no upload on skip
-        setProfile(builtProfile);
-        setEditing(false);
-      }}
-      onSubmit={async (_, builtProfile) => {
-        try {
-          await uploadProfile(builtProfile); // ← uploads to backend when available
+  // 2) Survey gate: show first-time OR when editing
+  const needsSurvey = editing || (!hasSurvey && !profile?.meta?.completed);
+  if (needsSurvey) {
+    return (
+      <OnboardingGoalsSurvey
+        userId={user?.sub}
+        userEmail={user?.email}
+        onSkip={(_, builtProfile) => {
+          // Skip: mark completed locally, NO upload
           setProfile(builtProfile);
           setEditing(false);
-        } catch (err) {
-          console.error(err);
-          alert("Failed to save preferences: " + err.message);
-        }
-      }}
-    />
-  );
-}
+        }}
+        onSubmit={async (_, builtProfile) => {
+          // Confirm: upload then persist locally
+          try {
+            await uploadProfile(builtProfile);
+            setProfile(builtProfile);
+            setEditing(false);
+          } catch (err) {
+            console.error(err);
+            alert("Failed to save preferences: " + err.message);
+          }
+        }}
+      />
+    );
+  }
 
-  // Authenticated + survey complete → dashboard
-  return <DashboardContent user={user} onEdit={() => setEditing(true)} />;
+  // 3) Authenticated + survey complete → dashboard
+  return <DashboardContent user={user} onEdit={() => setEditing(true)} chatbotContext={chatbotContext} />;
 }
