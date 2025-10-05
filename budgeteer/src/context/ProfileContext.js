@@ -3,40 +3,60 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 const ProfileContext = createContext(null);
 export function useProfile() { return useContext(ProfileContext); }
 
-// Helper: do we have any real survey answers?
+const PROFILE_KEY = "budgeteer:profile:v1";
+const SURVEY_KEY_FALLBACK = "budgeteer:goals-survey:v1"; // for older local data
+
 function hasSurveyData(s) {
   if (!s || typeof s !== "object") return false;
-  const keys = ["goals","focus_categories","nudges","time_horizon"];
+  const keys = ["goals", "focus_categories", "nudges", "time_horizon"];
   return keys.some(k => Array.isArray(s[k]) && s[k].length > 0);
 }
 
-export function ProfileProvider({ children, persistKey = "budgeteer:goals-survey:v1" }) {
+export function ProfileProvider({ children }) {
   const [profile, setProfile] = useState(null);
 
-  // Hydrate from localStorage (if present)
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(persistKey);
-      if (raw) {
-        const survey = JSON.parse(raw);
+      // Prefer full profile (new)
+      const rawProfile = localStorage.getItem(PROFILE_KEY);
+      if (rawProfile) {
+        setProfile(JSON.parse(rawProfile));
+        return;
+      }
+      // Fallback: old survey-only storage
+      const rawSurvey = localStorage.getItem(SURVEY_KEY_FALLBACK);
+      if (rawSurvey) {
+        const survey = JSON.parse(rawSurvey);
         setProfile({
           schema: "budgeteer.profile",
           version: 1,
           updatedAt: new Date().toISOString(),
           user: { id: null, email: null },
+          meta: { completed: hasSurveyData(survey) }, // infer completion
           survey,
         });
       }
     } catch {}
-  }, [persistKey]);
+  }, []);
 
-  // Expose a robust “hasSurvey” so we don’t skip the survey on empty objects
-  const value = {
-    profile,
-    setProfile,
-    persistKey,
-    hasSurvey: hasSurveyData(profile?.survey),
+  const setProfileAndPersist = (next) => {
+    setProfile(next);
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(next)); } catch {}
+    // keep survey-only key in sync so older code (if any) keeps working
+    if (next?.survey) {
+      try { localStorage.setItem(SURVEY_KEY_FALLBACK, JSON.stringify(next.survey)); } catch {}
+    }
   };
 
-  return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;
+  return (
+    <ProfileContext.Provider value={{
+      profile,
+      setProfile: setProfileAndPersist,
+      hasSurvey: hasSurveyData(profile?.survey),
+      hasCompleted: !!profile?.meta?.completed,
+      PROFILE_KEY,
+    }}>
+      {children}
+    </ProfileContext.Provider>
+  );
 }
