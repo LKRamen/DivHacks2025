@@ -32,7 +32,7 @@ app.get("/api/profile/:userId", async (req, res) => {
     const { userId } = req.params;
     const data = await fs.readFile(PROFILE_PATH, "utf8");
     const allProfiles = JSON.parse(data);
-    console.log(data);
+    console.log(allProfiles);
     
     if (allProfiles[userId]) {
       res.json(allProfiles[userId]);

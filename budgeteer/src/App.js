@@ -109,7 +109,7 @@ export default function App() {
     
     console.log("Attempting to fetch profile for:", user.sub);
     
-    fetch(`http://localhost:3001/api/profile/${encodeURIComponent(user.sub)}`)
+    fetch(`/api/profile/${encodeURIComponent(user.sub)}`)
       .then(res => {
         console.log("Response status:", res.status);
         return res.ok ? res.json() : null;
@@ -149,10 +149,10 @@ export default function App() {
     month: "October",
   });
 
-  // Backend uploader for Confirm (uses CRA proxy /api → :4000)
+  // Backend uploader for Confirm (uses CRA proxy /api → :3001)
   const uploadProfile = async (p) => {
     try {
-      const res = await fetch("http://localhost:3001/api/profile/upsert", {
+      const res = await fetch("/api/profile/upsert", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(p),
